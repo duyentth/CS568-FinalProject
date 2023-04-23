@@ -2,12 +2,12 @@ const mongoose = require("mongoose");
 
 const EventSchema = mongoose.Schema({
     title: { type: String, require: true },
-    startDate: Date,
-    endDate: Date,
+    startDate: String,
+    endDate: String,
     location: String,
     image: String,
     description: String,
-    createdDate: Date,
+    createdDate: String,
     createdBy: String,
     interested: Number,
     going: Number,
@@ -15,45 +15,79 @@ const EventSchema = mongoose.Schema({
 
 const Event = mongoose.model("Event", EventSchema);
 
-export const getAllEvents = async () => {
+const getAllEvents = async () => {
     try {
         const events = await Event.find({});
-        return events;
+        if (events) return events;
     } catch (error) {
-        console.log(error);
+        return { error: error.message, message: "cannot get user" };
     }
 };
 
-export const updateEvent = async (id, event) => {
+const updateEvent = async (id, event) => {
     try {
-        await Event.updateOne({_id: id}, {$set: {
-            title: event.title,
-            startDate: event.startDate,
-            endDate: event.endDate,
-            location: event.location,
-            image: event.image,
-            description: event.description,
-            interested: event.interested,
-            going: event.going
-        }})
+        const result = await Event.updateOne(
+            { _id: id },
+            {
+                $set: {
+                    title: event.title,
+                    startDate: event.startDate,
+                    endDate: event.endDate,
+                    location: event.location,
+                    image: event.image,
+                    description: event.description,
+                    interested: event.interested,
+                    going: event.going,
+                },
+            }
+        );
+        if (result.modifiedCount === 1) {
+            return { error: null, message: "updated successfully" };
+        }
+        return { error: "error", message: "nothing has changed-cannot update" };
     } catch (error) {
-        console.log(error);
+        return { error: error.message, message: "cannot update user" };
     }
 };
 
-export const deleteEvent = async (id) => {
+const deleteEvent = async (id) => {
     try {
-        await Event.deleteOne({_id: id});
+        const result = await Event.deleteOne({ _id: id });
+        if (result.deletedCount === 1) {
+            return { error: null, message: "deleted successfully" };
+        }
+        return { error: "error", message: "cannot delete" };
     } catch (error) {
-        console.log(error);
+        return { error: error.message, message: "cannot delete user" };
     }
 };
 
-export const addEvent = async (event) => {
+const addEvent = async (event) => {
     try {
         const newEvent = new Event(event);
         await newEvent.save();
+        return { error: null, message: "added successfully" };
+    } catch (error) {
+        return { error: error.message, message: "cannot add user" };
+    }
+};
+
+const isExisted = async (id) => {
+    try {
+        const event = await Event.findOne({ _id: id });
+        if (!event) {
+            return false;
+        }
+        return true;
     } catch (error) {
         console.log(error);
     }
+};
+
+module.exports = {
+    getAllEvents,
+    updateEvent,
+    deleteEvent,
+    addEvent,
+    isExisted,
 };

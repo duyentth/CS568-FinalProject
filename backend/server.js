@@ -1,7 +1,9 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-
+const eventRoutes = require('./routes/events.route'); 
+const userRoutes = require('./routes/user.route');
+const newsletterRoutes = require('./routes/newsletter.route');
 
 //connect to mongo database
 function connectToDB() {
@@ -14,8 +16,9 @@ connectToDB()
     .catch((error) => console.log(error));
 
 app.use(express.json());
-app.use("/events", eventsRouter);
-app.use('/')
+app.use('/users', userRoutes);
+app.use('/newsletters', newsletterRoutes);
+app.use("/events", eventRoutes);
 
 //error handler
 app.use((error, req, res, next) => {

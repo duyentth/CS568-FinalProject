@@ -7,7 +7,7 @@ const UserSchema = mongoose.Schema({
     email: { type: String, unique: true, require: true },
     password: String,
     phone: String,
-    role: String,
+    role: Number,
 });
 
 const User = mongoose.model("User", UserSchema);
@@ -31,7 +31,7 @@ exports.getAllUsers = async () => {
         const users = await User.find();
         return users;
     } catch (error) {
-        console.log(error);
+        return { error: error.message, message: "cannot get users" };
     }
 };
 
@@ -39,43 +39,68 @@ exports.getAllUsers = async () => {
 exports.getUser = async (email) => {
     try {
         const user = await User.findOne({ email });
-        return user;
+        if(user) return {error: null, user: user} ;
+        return { error: 'something wrong', message: "cannot get user" };
     } catch (error) {
-        console.log(error);
+        return { error: error.message, message: "cannot get user" };
     }
 };
 
 //add a new user
-exports.addNewUser = async (name, email, password, phone, role) => {
+exports.addNewUser = async (name, email, password, phone, role = 0) => {
     const user = new User({ name, email, password, phone, role });
     try {
         await user.save();
+        return { error: null, message: "added successfully" };
     } catch (error) {
-        console.log(error);
+        return { error: error.message, message: "cannot add user" };
     }
 };
 
 //update an existed user
-exports.updateUser = async (email, password) => {
+exports.updateUser = async (name, email, password, phone, role) => {
     try {
-        await User.updateOne({ email }, { $set: { password } });
+        const result = await User.updateOne(
+            { email },
+            {
+                $set: {
+                    name,
+                    email,
+                    password,
+                    phone,
+                    role,
+                },
+            }
+        );
+        if (result.modifiedCount === 1) {
+            return { error: null, message: "updated successfully" };
+        }
+        return {
+            error: "error",
+            message: "nothing has changed - cannot updated",
+        };
     } catch (error) {
-        console.log(error);
+        return { error: error.message, message: "cannot update user" };
     }
 };
 
 //delete an existed user
 exports.deleteUser = async (email) => {
     try {
-        await User.deleteOne({ email });
+        const result = await User.deleteOne({ email });
+        if (result.deletedCount === 1) {
+            return { error: null, message: "deleted successfully" };
+        }
+        return { error: "error", message: "cannot delete user" };
     } catch (error) {
-        console.log(error);
+        return { error: error.message, message: "cannot delete user" };
     }
 };
 
 //user sign in
 exports.userSignin = async (email, password) => {
-    const user = await this.getUser(email);
+    const result = await this.getUser(email);
+    const user = result.user;
     const hashedpwrd = user.password;
     if (bcrypt.compareSync(password, hashedpwrd)) {
         const token = jwt.sign(
@@ -87,41 +112,8 @@ exports.userSignin = async (email, password) => {
             },
             PRIVATEKEY
         );
-        return token;
+        return { error: null, message: "signed in successfully", token: token };
     }
-    return null;
+    return { error: "error", message: "cannot sign in" };
 };
 
-//middleware validateToken
-exports.validateToken = async (req, res, next) => {
-    if (!req.headers.authorization) {
-        return res.status(401).send("Please provide the valid token");
-    }
-    const splits = req.headers.authorization.split(" ");
-    if (splits.length != 2) {
-        return next(new Error("Please use bearer schema"));
-    }
-    const token = splits[1];
-    try {
-        const user = jwt.verify(token, PRIVATEKEY);
-        //console.log('user from token is: ', user);
-        req.password = user.password;
-        req.email = user.email;
-        req.role = user.role;
-        next();
-    } catch (error) {
-        res.status(403).send("Forbidden. Wrong JWT");
-        return;
-    }
-};
-
-//check role of user after validating the given token
-exports.ValidateRole = async (req, res, next) => {
-    const role = req.role;
-    if (role.toLowerCase() == "user") {
-        res.status(403).send("Sorry. You don't have permission to go forward");
-        return;
-    } else {
-        next();
-    }
-};
