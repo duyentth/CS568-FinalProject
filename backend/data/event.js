@@ -18,7 +18,16 @@ const Event = mongoose.model("Event", EventSchema);
 const getAllEvents = async () => {
     try {
         const events = await Event.find({});
-        if (events) return events;
+        return events;
+    } catch (error) {
+        return { error: error.message, message: "cannot get users" };
+    }
+};
+
+const getEvent = async (id) => {
+    try {
+        const event = await Event.findOne({ _id: id });
+        return event;
     } catch (error) {
         return { error: error.message, message: "cannot get user" };
     }
@@ -90,4 +99,5 @@ module.exports = {
     deleteEvent,
     addEvent,
     isExisted,
+    getEvent,
 };

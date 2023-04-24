@@ -6,6 +6,7 @@ const {
     deleteEvent,
     addEvent,
     isExisted,
+    getEvent,
 } = require("../data/event");
 
 //get all events
@@ -21,6 +22,22 @@ router.get("/", async (req, res) => {
         res.send({ status: 400, message: error.message });
     }
 });
+
+//get a specific event
+router.get('/:id', async (req, res) => {
+    const {id} = req.params; 
+    try {
+        const event = await getEvent(id);
+        if( event) {
+            res.status(200).send(event);
+            return;
+        } else {
+            res.send({ status: 400, message: "not found" });
+        }
+    } catch (error) {
+        res.send({ status: 400, message: error.message });    
+    }
+})
 
 //add new event
 router.post("/new", async (req, res) => {

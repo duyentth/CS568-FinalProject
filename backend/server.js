@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const eventRoutes = require('./routes/events.route'); 
 const userRoutes = require('./routes/user.route');
 const newsletterRoutes = require('./routes/newsletter.route');
+const cors = require('cors');
 
 //connect to mongo database
 function connectToDB() {
@@ -16,6 +17,7 @@ connectToDB()
     .catch((error) => console.log(error));
 
 app.use(express.json());
+app.use(cors());
 app.use('/users', userRoutes);
 app.use('/newsletters', newsletterRoutes);
 app.use("/events", eventRoutes);
