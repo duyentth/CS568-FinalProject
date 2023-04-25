@@ -42,6 +42,10 @@ router.get("/:email", async (req, res, next) => {
 
 router.post("/login", async (req, res, next) => {
     const { email, password } = req.body;
+    if (!(await isExisted(email))) {
+        res.send({ status: 400, message: "Wrong email" });
+        return;
+    }
     try {
         const result = await userSignin(email, password);
         if (!result.error) {
@@ -50,6 +54,8 @@ router.post("/login", async (req, res, next) => {
                 message: result.message,
                 token: result.token,
             });
+        } else {
+            res.send({ status: 400, message: result.message });
         }
     } catch (error) {
         res.send({ status: 400, message: error.message });
@@ -59,6 +65,10 @@ router.post("/login", async (req, res, next) => {
 router.post("/signup", async (req, res, next) => {
     const { name, email, password, phone, role } = req.body;
     const hashedpwrd = bcrypt.hashSync(password, 10);
+    if (await isExisted(email)) {
+        res.send({ status: 300, message: "this email is already used. " });
+        return;
+    }
     try {
         const result = await addNewUser(name, email, hashedpwrd, phone, role);
         if (!result.error) {

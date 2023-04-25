@@ -1,6 +1,6 @@
-import { Form } from "react-router-dom";
-
+import { Form, json, redirect, useActionData } from "react-router-dom";
 import classes from "./EventForm.module.css";
+import axios from "axios";
 
 function EventForm({ method, event }) {
     return (
@@ -78,15 +78,10 @@ function EventForm({ method, event }) {
                 />
             </p>
             <div className={classes.actions}>
-                <button
-                    type="button"
-                    
-                >
+                <button type="button" onClick={() => {return redirect("/events")}}>
                     Cancel
                 </button>
-                <button type='submit'>
-                    Save
-                </button>
+                <button type="submit">Save</button>
             </div>
         </Form>
     );
@@ -94,41 +89,42 @@ function EventForm({ method, event }) {
 
 export default EventForm;
 
-// export async function action({ request, params }) {
-//     const method = request.method;
-//     const data = await request.formData();
+export const action = async ({ request, params }) => {
+    const method = request.method;
+    const data = await request.formData();
 
-//     const eventData = {
-//         title: data.get("title"),
-//         image: data.get("image"),
-//         date: data.get("date"),
-//         description: data.get("description"),
-//     };
+    const payload = {
+        title: data.get("title"),
+        startDate: data.get("startDate"),
+        endDate: data.get("endDate"),
+        location: data.get("location"),
+        image: data.get("image"),
+        description: data.get("description"),
+        createdDate: new Date().toISOString().substring(0, 10),
+        createdBy: "duyen.tran@miu.edu",
+        interested: 0,
+        going: 0,
+    };
 
-//     let url = "http://localhost:8080/events";
+    let url = "http://localhost:4000/events/new";
 
-//     if (method === "PATCH") {
-//         const eventId = params.eventId;
-//         url = "http://localhost:8080/events/" + eventId;
-//     }
-
-//     const token = getAuthToken();
-//     const response = await fetch(url, {
-//         method: method,
-//         headers: {
-//             "Content-Type": "application/json",
-//             Authorization: "Bearer " + token,
-//         },
-//         body: JSON.stringify(eventData),
-//     });
-
-//     if (response.status === 422) {
-//         return response;
-//     }
-
-//     if (!response.ok) {
-//         throw json({ message: "Could not save event." }, { status: 500 });
-//     }
-
-//     return redirect("/events");
-// }
+    if (method === "PATCH") {
+        const eventId = params.eventId;
+        url = "http://localhost:4000/events/" + eventId;
+    }
+    const response = await axios({
+        method,
+        url,
+        data: payload,
+        headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+    });
+    if (response.data.status !== 200) {
+        window.alert(response.data.message);
+        redirect("/events");
+    }
+    if (response.statusText !== "OK") {
+        throw json({ message: "could not update/add an event", status: 500 });
+    } else {
+        return redirect("/events");
+    }
+};

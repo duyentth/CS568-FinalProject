@@ -1,5 +1,7 @@
-const LogoutPage = () => {
-    return <p>logout page here</p>
+import { redirect } from "react-router-dom";
+
+export const action = () => {
+    localStorage.removeItem('token');
+    return redirect('/');
 }
 
-export default LogoutPage

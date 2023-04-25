@@ -1,11 +1,19 @@
+const PRIVATEKEY = "meomeomeo";
+const jwt = require("jsonwebtoken");
+
 //middleware validateToken
 exports.validateToken = async (req, res, next) => {
     if (!req.headers.authorization) {
-        return res.status(401).send("Please provide the valid token");
+        return res.send({
+            message: "Please provide the valid token",
+            status: 401,
+        });
     }
     const splits = req.headers.authorization.split(" ");
     if (splits.length != 2) {
-        return next(new Error("Please use bearer schema"));
+        res.send({ message: "Please use bearer schema", status: 300 });
+        return;
+        //return next(new Error("Please use bearer schema"));
     }
     const token = splits[1];
     try {
@@ -16,7 +24,7 @@ exports.validateToken = async (req, res, next) => {
         req.role = user.role;
         next();
     } catch (error) {
-        res.status(403).send("Forbidden. Wrong JWT");
+        res.send({ message: "Forbidden. Wrong JWT", status: 403 });
         return;
     }
 };
@@ -25,7 +33,10 @@ exports.validateToken = async (req, res, next) => {
 exports.ValidateRole = async (req, res, next) => {
     const role = req.role;
     if (role === 0) {
-        res.status(403).send("Sorry. You don't have permission to go forward");
+        res.send({
+            message: "Sorry. You don't have permission.",
+            status: 403,
+        });
         return;
     } else {
         next();

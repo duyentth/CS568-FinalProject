@@ -114,6 +114,6 @@ exports.userSignin = async (email, password) => {
         );
         return { error: null, message: "signed in successfully", token: token };
     }
-    return { error: "error", message: "cannot sign in" };
+    return { error: "error", message: "wrong password" };
 };
 

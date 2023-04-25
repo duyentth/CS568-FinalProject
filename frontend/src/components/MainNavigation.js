@@ -1,11 +1,8 @@
-import { Form, NavLink, useRouteLoaderData } from "react-router-dom";
-
+import { NavLink, Form, useRouteLoaderData } from "react-router-dom";
 import classes from "./MainNavigation.module.css";
-// import NewsletterSignup from "./NewsletterSignup";
 
-function MainNavigation() {
+const MainNavigation = () => {
     const token = useRouteLoaderData("root");
-
     return (
         <header className={classes.header}>
             <nav>
@@ -41,7 +38,7 @@ function MainNavigation() {
                             Newsletter
                         </NavLink>
                     </li>
-                    <li>
+                    {/* <li>
                         <NavLink
                             to="/users"
                             className={({ isActive }) =>
@@ -50,37 +47,20 @@ function MainNavigation() {
                         >
                             Users
                         </NavLink>
-                    </li>
-                    <li>
-                        <Form action="/search" method="post">
-                            <input placeholder="search events"></input>
-                        </Form>
-                    </li>
+                    </li> */}
                     {!token && (
                         <li>
                             <NavLink
-                                to="/login"
+                                to="/auth?mode=login"
                                 className={({ isActive }) =>
                                     isActive ? classes.active : undefined
                                 }
                             >
-                                Login
+                                Authentication
                             </NavLink>
                         </li>
                     )}
 
-                    {!token && (
-                        <li>
-                            <NavLink
-                                to="/logout"
-                                className={({ isActive }) =>
-                                    isActive ? classes.active : undefined
-                                }
-                            >
-                                Logout
-                            </NavLink>
-                        </li>
-                    )}
                     {token && (
                         <li>
                             <Form action="/logout" method="post">
@@ -93,6 +73,6 @@ function MainNavigation() {
             {/* <NewsletterSignup /> */}
         </header>
     );
-}
+};
 
 export default MainNavigation;

@@ -1,6 +1,17 @@
 const express = require("express");
 const router = express.Router();
-const { subscribe, unSubscribe, unsubscribe } = require("../data/newsletter");
+const { subscribe, unSubscribe, unsubscribe, getAllSubscriber } = require("../data/newsletter");
+
+router.get('/', async (req, res) => {
+    try {
+        const result = await getAllSubscriber();
+        if (result ){
+            res.status(200).send(result);
+        }
+    } catch (error) {
+        res.send({message: error.message, status:400});
+    }
+})
 
 router.post("/subscribe", async (req, res, next) => {
     const { email } = req.body;

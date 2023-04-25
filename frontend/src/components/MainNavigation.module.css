@@ -3,20 +3,22 @@
   margin: auto;
   padding: 2rem;
   display: flex;
-  justify-content: space-between;
+  justify-content:space-around;
 }
 
 .list {
   display: flex;
-  gap: 1rem;
+  gap: 2.3rem;
 }
 
 .list a {
   text-decoration: none;
   color: var(--color-primary-400);
+  font-size: 20px;
 }
 
 .list a:hover,
 .list a.active {
   color: var(--color-primary-800);
 }
+

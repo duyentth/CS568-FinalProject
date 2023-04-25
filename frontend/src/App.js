@@ -10,21 +10,24 @@ import EventDetailPage, {
     action as deleteEventAction,
 } from "./pages/EventDetail";
 import EditEventPage from "./pages/EditEvent";
-import NewsletterPage from "./pages/Newsletter";
+import NewsletterPage, { action as newsletterAction } from "./pages/Newsletter";
 import UsersRootLayout from "./pages/UsersRoot";
-import NewEventPage, { action as newEventAction } from "./pages/NewEvent";
+import NewEventPage from "./pages/NewEvent";
 import UsersPage from "./pages/Users";
 import UserDetailPage from "./pages/UserDetail";
 import EditUserPage from "./pages/EditUser";
 import NewUserPage from "./pages/NewUser";
-import LoginPage from "./pages/Login";
-import LogoutPage from "./pages/Logout";
-
+import LoginPage, { action as authAction } from "./pages/Login";
+import { action as logoutAction } from "./pages/Logout";
+import { action as manipulateAction } from "./components/EventForm";
+import { tokenLoader } from "./util/auth";
 const router = createBrowserRouter([
     {
         path: "/",
         element: <RootLayout />,
         errorElement: <ErrorPage />,
+        id: 'root',
+        loader: tokenLoader,
         children: [
             { index: true, element: <HomePage /> },
             {
@@ -46,17 +49,25 @@ const router = createBrowserRouter([
                                 element: <EventDetailPage />,
                                 action: deleteEventAction,
                             },
-                            { path: "edit", element: <EditEventPage /> },
+                            {
+                                path: "edit",
+                                element: <EditEventPage />,
+                                action: manipulateAction,
+                            },
                         ],
                     },
                     {
                         path: "new",
                         element: <NewEventPage />,
-                        action: newEventAction,
+                        action: manipulateAction,
                     },
                 ],
             },
-            { path: "newsletters", element: <NewsletterPage /> },
+            {
+                path: "newsletters",
+                element: <NewsletterPage />,
+                action: newsletterAction,
+            },
             {
                 path: "users",
                 element: <UsersRootLayout />,
@@ -75,8 +86,8 @@ const router = createBrowserRouter([
                     { path: "new", element: <NewUserPage /> },
                 ],
             },
-            { path: "login", element: <LoginPage /> },
-            { path: "logout", element: <LogoutPage /> },
+            { path: "auth", element: <LoginPage />, action: authAction },
+            { path: "logout", action: logoutAction },
         ],
     },
 ]);

@@ -7,6 +7,16 @@ const NewsletterSchema = mongoose.Schema({
 
 const Newsletter = mongoose.model("Newsletter", NewsletterSchema);
 
+const getAllSubscriber = async () => {
+    try {
+        const subs = await Newsletter.find({isSubscribed: true});
+        if (subs.length > 0) return subs;
+        else return { message: "there is no subscriber", status: 400 };
+    } catch (error) {
+        return { message: "cannot fetch data", status: 500 };
+    }
+};
+
 const subscribe = async (email) => {
     const subscriber = new Newsletter({
         email,
@@ -48,4 +58,4 @@ const unSubscribe = async (email) => {
     }
 };
 
-module.exports = { subscribe, unSubscribe };
+module.exports = { subscribe, unSubscribe, getAllSubscriber };
