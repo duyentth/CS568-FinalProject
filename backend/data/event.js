@@ -33,6 +33,18 @@ const getEvent = async (id) => {
     }
 };
 
+
+const getOwner = async (eventId) => {
+    try {
+        const event = await getEvent(eventId);
+        if(event) {
+            return event.createdBy;
+        }
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
 const updateEvent = async (id, event) => {
     try {
         const result = await Event.updateOne(
@@ -100,4 +112,5 @@ module.exports = {
     addEvent,
     isExisted,
     getEvent,
+    getOwner,
 };

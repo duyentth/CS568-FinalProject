@@ -1,5 +1,6 @@
 const PRIVATEKEY = "meomeomeo";
 const jwt = require("jsonwebtoken");
+const { getOwner } = require("../data/event");
 
 //middleware validateToken
 exports.validateToken = async (req, res, next) => {
@@ -32,12 +33,14 @@ exports.validateToken = async (req, res, next) => {
 //check role of user after validating the given token
 exports.ValidateRole = async (req, res, next) => {
     const role = req.role;
-    if (role === 0) {
-        res.send({
-            message: "Sorry. You don't have permission.",
-            status: 403,
-        });
-        return;
+    const email = req.email;
+    const { eventId } = req.params;
+    const owner = await getOwner(eventId);
+    if (role === 0 && email !== owner) {
+       res.send({
+           message: "Sorry. You don't have permission.",
+           status: 403,
+       });
     } else {
         next();
     }

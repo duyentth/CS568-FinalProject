@@ -38,7 +38,6 @@ export async function action({ request, params }) {
         "http://localhost:4000/users/" + mode,
         payload
     );
-    console.log(response.data);
     if (response.statusText !== "OK") {
         throw json(
             { message: "Could not authenticate user." },
@@ -54,6 +53,7 @@ export async function action({ request, params }) {
         }
         if (mode === "login") {
             localStorage.setItem("token", response.data.token);
+            localStorage.setItem('email', payload.email);
             return redirect("/events");
         }
      }

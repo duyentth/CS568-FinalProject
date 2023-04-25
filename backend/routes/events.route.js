@@ -44,7 +44,7 @@ router.get('/:id', async (req, res) => {
 router.use(validateToken);
 
 //add new event
-router.post("/new", ValidateRole ,async (req, res) => {
+router.post("/new", async (req, res) => {
     const event = req.body;
     try {
         const result = await addEvent(event);

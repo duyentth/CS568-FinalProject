@@ -1,9 +1,49 @@
-import { Form, json, redirect } from "react-router-dom";
+import {
+    Form,
+    json,
+    redirect,
+    useNavigate,
+    useNavigation,
+} from "react-router-dom";
 import classes from "./EventForm.module.css";
 import axios from "axios";
-
+import useInput from "../util/useInput";
 
 function EventForm({ method, event }) {
+    const isValidStartDate = (value) => {
+        const currentDate = new Date().getTime();
+        const startDate = new Date(value).getTime();
+        return startDate > currentDate;
+    };
+
+    const isValidEndDate = (endDate) => {
+        const endTime = new Date(endDate).getTime();
+        const startTime = new Date(startDateValue).getTime();
+        return endTime >= startTime;
+    };
+    //startDate input
+    const {
+        value: startDateValue,
+        hasError: startDateHasError,
+        valueChangeHandler: startDateChangeHandler,
+        inputBlurHandler: startDateBlurHandler,
+    } = useInput(isValidStartDate);
+
+    //endDate input
+    const {
+        value: endDateValue,
+        hasError: endDateHasError,
+        valueChangeHandler: endDateChangeHandler,
+        inputBlurHandler: endDateBlurHandler,
+    } = useInput(isValidEndDate);
+
+    const navigate = useNavigate();
+    const navigation = useNavigation();
+    const isSubmitting = navigation.state === "submitting";
+
+    const cancelHandler = () => {
+        navigate("..");
+    };
     return (
         <Form method={method} className={classes.form}>
             <p>
@@ -38,10 +78,15 @@ function EventForm({ method, event }) {
                             ? new Date(event.startDate)
                                   .toISOString()
                                   .substring(0, 10)
-                            : ""
+                            : { startDateValue }
                     }
+                    onChange={startDateChangeHandler}
+                    onBlur={startDateBlurHandler}
                 />
             </p>
+            {startDateHasError && (
+                <p className={classes.errorText}>Please choose a valid date!</p>
+            )}
             <p>
                 <label htmlFor="endDate">End Date</label>
                 <input
@@ -54,10 +99,15 @@ function EventForm({ method, event }) {
                             ? new Date(event.endDate)
                                   .toISOString()
                                   .substring(0, 10)
-                            : ""
+                            : { endDateValue }
                     }
+                    onChange={endDateChangeHandler}
+                    onBlur={endDateBlurHandler}
                 />
             </p>
+            {endDateHasError && (
+                <p className={classes.errorText}>Please choose a valid date!</p>
+            )}
             <p>
                 <label htmlFor="description">Location</label>
                 <textarea
@@ -79,10 +129,16 @@ function EventForm({ method, event }) {
                 />
             </p>
             <div className={classes.actions}>
-                <button type="button" onClick={() => {return redirect("/events")}}>
+                <button
+                    type="button"
+                    onClick={cancelHandler}
+                    disabled={isSubmitting}
+                >
                     Cancel
                 </button>
-                <button type="submit">Save</button>
+                <button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? "Submitting..." : "Save"}
+                </button>
             </div>
         </Form>
     );
@@ -102,7 +158,7 @@ export const action = async ({ request, params }) => {
         image: data.get("image"),
         description: data.get("description"),
         createdDate: new Date().toISOString().substring(0, 10),
-        createdBy: "duyen.tran@miu.edu",
+        createdBy: localStorage.getItem("email"),
         interested: 0,
         going: 0,
     };
