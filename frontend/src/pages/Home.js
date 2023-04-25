@@ -3,7 +3,7 @@ import PageContent from "../components/PageContent";
 const HomePage = () => {
     return (
         <>
-            <PageContent title="Wellcome!">
+            <PageContent title="Welcome!">
                 <p>Browse all our interesting events</p>
             </PageContent>
         </>
