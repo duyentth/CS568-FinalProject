@@ -70,7 +70,6 @@ const MainNavigation = () => {
                     )}
                 </ul>
             </nav>
-            {/* <NewsletterSignup /> */}
         </header>
     );
 };
